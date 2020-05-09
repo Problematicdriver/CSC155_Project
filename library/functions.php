@@ -68,6 +68,7 @@ function printUserTable($conn)
            . "<th>ENCRYPTED PASSWORD</th>" 
            . "<th>GROUP</th>" 
            . "<th>EMAIL</th>"
+	   . "<th>ADDRESS</th>"
 	   . "<th></th>"    // edit button   
            ;
 	echo "</tr>";
@@ -82,7 +83,12 @@ function printUserTable($conn)
 	       . "<td>" . $row["firstname"] . " " . $row["lastname"] . "</td>"
                . "<td>" . $row["encrypted_password"] . "</td>" 
                . "<td>" . $row["usergroup"] . "</td>" 
-               . "<td>" . $row["email"] . "</td>"   ;
+               . "<td>" . $row["email"] . "</td>"
+	       . "<td>" . $row["address1"]. "<br>"
+	       . $row["address2"]. "<br>"
+	       . $row["city"]. "<br>"
+ 	       . $row["state"]. "<br>"
+	       . $row["zip"]. "</td>" ;
 	    echo "<td>";
 	    printEditButton($row["id"]);
 	    echo "</td>";
@@ -183,14 +189,19 @@ function updateUserRecord($conn)
 {
     // we've already verified $_POST['id']
     // prepare since there's user input
-    $stmt = $conn->prepare("UPDATE users SET email=? 
+    $stmt = $conn->prepare("UPDATE users SET email=?, address1=?, address2=?, city=?, state=?, zip=? 
                                          WHERE id=?");
     // bind variable names and types
-    $stmt->bind_param("si", $email, $id);
+    $stmt->bind_param("ssssssi", $email, $address1, $address2, $city, $state, $zip, $id);
 
     // move the information from the form into 'bound' variables
     $email = $_POST['email'];
     $id    = $_POST['id'];
+    $address1 = $_POST['address1'];
+    $address2 = $_POST['address2'];
+    $city = $_POST['city'];
+    $state = $_POST['state'];
+    $zip = $_POST['zip'];
 
     // put the statement together and send it to the database
     $stmt->execute();

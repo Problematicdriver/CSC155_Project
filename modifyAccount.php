@@ -69,6 +69,26 @@ else
   <td> <input type='text' name='email' value='<?php echo $row["email"]; ?>'/></td>
 </tr>
 <tr>
+  <td>Address1</td>
+  <td> <input type='text' name='address1' value='<?php echo $row["address1"]; ?>'/></td>
+</tr>
+<tr>
+  <td>Address2</td>
+  <td> <input type='text' name='address2' value='<?php echo $row["address2"]; ?>'/></td>
+</tr>
+<tr>
+  <td>City</td>
+  <td> <input type='text' name='city' value='<?php echo $row["city"]; ?>'/></td>
+</tr>
+<tr>
+  <td>State</td>
+  <td> <input type='text' name='state' value='<?php echo $row["state"]; ?>'/></td>
+</tr>
+<tr>
+  <td>Zipcode</td>
+  <td> <input type='text' name='zip' value='<?php echo $row["zip"]; ?>'/></td>
+</tr>
+<tr>
   <td colspan='2' style='text-align: center; background-color: white;'>
     <input type='submit' name='selection' value='Apply Changes' />
     &nbsp;
