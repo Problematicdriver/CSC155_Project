@@ -1,7 +1,7 @@
 #userform  {
   border: 1px solid black;
   border-width: 1px;
-  margin-left: auto; 
+  margin-left: auto;
   margin-right: auto;
   border-collapse: collapse;
 }
@@ -17,7 +17,7 @@
 #usershow {
   border: 1px solid black;
   border-width: 1px;
-  margin-left: auto; 
+  margin-left: auto;
   margin-right: auto;
   border-collapse: collapse;
 }
@@ -49,4 +49,3 @@
     position: fixed;
     left: 0;
     bottom: 0;
-}

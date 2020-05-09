@@ -67,7 +67,9 @@ function printUserTable($conn)
 	   . "<th>NAME</th>" 
            . "<th>ENCRYPTED PASSWORD</th>" 
            . "<th>GROUP</th>" 
-           . "<th>EMAIL</th>"   ;
+           . "<th>EMAIL</th>"
+	   . "<th></th>"    // edit button   
+           ;
 	echo "</tr>";
 
 	// loop through all the rows 
@@ -81,6 +83,9 @@ function printUserTable($conn)
                . "<td>" . $row["encrypted_password"] . "</td>" 
                . "<td>" . $row["usergroup"] . "</td>" 
                . "<td>" . $row["email"] . "</td>"   ;
+	    echo "<td>";
+	    printEditButton($row["id"]);
+	    echo "</td>";
 	    echo "</tr>";
 	}
     } 
@@ -90,6 +95,14 @@ function printUserTable($conn)
 	echo "<tr><td>0 results</td></tr>";
     }
     echo "</table>";
+}
+
+function printEditButton($id)
+{
+    echo "<form action='modifyAccount.php' method='POST'>";
+    echo "<input type='hidden' name='id' value='$id' />";
+    echo "<input type='submit' name='selection' value='Edit' />";
+    echo "</form>";
 }
 
 function displayError($mesg)
@@ -127,6 +140,26 @@ function lookUpUserName($conn, $usernameToFind)
     }
 }
 
+// get the record for a user by id
+function lookUpUserNameByID($conn, $idToFind)
+{
+    $sql = "SELECT * FROM users WHERE id=? ;"; // SQL with parameters
+    #    echo "<code>$sql</code>";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $idToFind);
+    $stmt->execute();
+    $result = $stmt->get_result(); // get the mysqli result
+    if ($result->num_rows == 1)
+    {
+        return $result;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+
 function checkAndStoreLogin( $conn, $usernameToTest, $passwordToTest )
 {
     // setting $_SESSION['username'] and $_SESSION['usergroup']
@@ -146,5 +179,21 @@ function checkAndStoreLogin( $conn, $usernameToTest, $passwordToTest )
     return FALSE;
 }
 
+function updateUserRecord($conn)
+{
+    // we've already verified $_POST['id']
+    // prepare since there's user input
+    $stmt = $conn->prepare("UPDATE users SET email=? 
+                                         WHERE id=?");
+    // bind variable names and types
+    $stmt->bind_param("si", $email, $id);
+
+    // move the information from the form into 'bound' variables
+    $email = $_POST['email'];
+    $id    = $_POST['id'];
+
+    // put the statement together and send it to the database
+    $stmt->execute();
+}
 
 ?>
