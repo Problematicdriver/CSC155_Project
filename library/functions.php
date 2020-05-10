@@ -54,7 +54,7 @@ function getDBConnection()
 function printUserTable($conn)
 {
     // build the SQL that pulls the data from the database
-    $sql = "SELECT * FROM users;";
+    $sql = "SELECT * FROM users WHERE deleted_at IS NULL;";
     $result = $conn->query($sql);
 
     echo "<table id='usershow'>";    
@@ -69,7 +69,10 @@ function printUserTable($conn)
            . "<th>GROUP</th>" 
            . "<th>EMAIL</th>"
 	   . "<th>ADDRESS</th>"
-	   . "<th></th>"    // edit button   
+	   . "<th>LAST UPDATE</th>"
+	   . "<th>CREATED AT</th>"
+	   . "<th></th>"    // edit button
+	   . "<th></th>"    // edit button     
            ;
 	echo "</tr>";
 
@@ -79,18 +82,23 @@ function printUserTable($conn)
 	    // output the data from each row
 	    echo "<tr>";
 	    echo "<td>" . $row["id"] . "</td>" 
-               . "<td>" . $row["username"] . "</td>"
-	       . "<td>" . $row["firstname"] . " " . $row["lastname"] . "</td>"
-               . "<td>" . $row["encrypted_password"] . "</td>" 
-               . "<td>" . $row["usergroup"] . "</td>" 
-               . "<td>" . $row["email"] . "</td>"
-	       . "<td>" . $row["address1"]. "<br>"
-	       . $row["address2"]. "<br>"
-	       . $row["city"]. "<br>"
- 	       . $row["state"]. "<br>"
-	       . $row["zip"]. "</td>" ;
+                . "<td>" . $row["username"] . "</td>"
+	        . "<td>" . $row["firstname"] . " " . $row["lastname"] . "</td>"
+                . "<td>" . $row["encrypted_password"] . "</td>" 
+                . "<td>" . $row["usergroup"] . "</td>" 
+                . "<td>" . $row["email"] . "</td>"
+	        . "<td>" . $row["address1"]. "<br>"
+	        . $row["address2"]. "<br>"
+	        . $row["city"]. "<br>"
+ 	        . $row["state"]. "<br>"
+	        . $row["zip"]. "</td>" 
+		. "<td>" . $row["last_update"] . "</td>"
+		. "<td>" . $row["created_at"] . "</td>";
 	    echo "<td>";
-	    printEditButton($row["id"]);
+	    printEditImage($row["id"]);
+	    echo "</td>";
+	    echo "<td>";
+	    printDeleteImage($row["id"]);
 	    echo "</td>";
 	    echo "</tr>";
 	}
@@ -109,6 +117,43 @@ function printEditButton($id)
     echo "<input type='hidden' name='id' value='$id' />";
     echo "<input type='submit' name='selection' value='Edit' />";
     echo "</form>";
+}
+
+function printEditImage($id)
+{   
+    echo "<form action='modifyAccount.php' method='POST'>";
+    echo "<input type='hidden' name='id' value='$id' />";
+    echo "<input type='hidden' name='selection' value='Edit' />";
+    echo "<input type='image' height='20' src='library/editicon.gif' />";
+    echo "</form>";
+}
+
+function printDeleteButton($id)
+{   
+    echo "<form action='deleteAccount.php' method='POST'>";
+    echo "<input type='hidden' name='id' value='$id' />";
+    echo "<input type='submit' name='selection' value='Delete' />";
+    echo "</form>";
+}
+
+function printDeleteImage($id)
+{
+    echo "<form action='deleteAccount.php' method='POST'>";
+    echo "<input type='hidden' name='id' value='$id' />";
+    echo "<input type='hidden' name='selection' value='Delete' />";
+    echo "<input type='image' height='20' src='library/deleteicon.gif' />";
+    echo "</form>";
+}
+
+function deleteUserRecord($conn)
+{
+    // we've already verified $_POST['id']
+    $stmt = $conn->prepare("UPDATE users SET deleted_at=? 
+                                         WHERE id=?");
+    $stmt->bind_param("si", $time, $id);
+    $time  = date("Y-m-d H:i:s");
+    $id    = $_POST['id'];
+    $stmt->execute();
 }
 
 function displayError($mesg)
@@ -130,7 +175,7 @@ function showPost( $name )
 
 function lookUpUserName($conn, $usernameToFind)
 {
-    $sql = "SELECT * FROM users WHERE username=? ;"; // SQL with parameters
+    $sql = "SELECT * FROM users WHERE username=? AND deleted_at IS NULL;"; // SQL with parameters
     #    echo "<code>$sql</code>";
     $stmt = $conn->prepare($sql); 
     $stmt->bind_param("s", $usernameToFind);
@@ -149,7 +194,7 @@ function lookUpUserName($conn, $usernameToFind)
 // get the record for a user by id
 function lookUpUserNameByID($conn, $idToFind)
 {
-    $sql = "SELECT * FROM users WHERE id=? ;"; // SQL with parameters
+    $sql = "SELECT * FROM users WHERE id=? AND deleted_at IS NULL;"; // SQL with parameters
     #    echo "<code>$sql</code>";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $idToFind);
@@ -189,10 +234,10 @@ function updateUserRecord($conn)
 {
     // we've already verified $_POST['id']
     // prepare since there's user input
-    $stmt = $conn->prepare("UPDATE users SET email=?, address1=?, address2=?, city=?, state=?, zip=? 
+    $stmt = $conn->prepare("UPDATE users SET email=?, address1=?, address2=?, city=?, state=?, zip=?, last_update=? 
                                          WHERE id=?");
     // bind variable names and types
-    $stmt->bind_param("ssssssi", $email, $address1, $address2, $city, $state, $zip, $id);
+    $stmt->bind_param("sssssssi", $email, $address1, $address2, $city, $state, $zip, $time, $id);
 
     // move the information from the form into 'bound' variables
     $email = $_POST['email'];
@@ -202,6 +247,7 @@ function updateUserRecord($conn)
     $city = $_POST['city'];
     $state = $_POST['state'];
     $zip = $_POST['zip'];
+    $time = date("Y-m-d H:i:s");
 
     // put the statement together and send it to the database
     $stmt->execute();

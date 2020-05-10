@@ -23,11 +23,11 @@ if (isset($_POST['selection'])) // form loaded itself
 	    // build SQL command SECURELY
             // prepare
 	    $stmt = $conn->prepare("INSERT INTO users 
-                       (username,firstname, lastname, encrypted_password, usergroup, email) 
-                       VALUES (?, ?, ?, ?, ?, ?)" );
+                       (username,firstname, lastname, encrypted_password, usergroup, email, address1, address2, city, state, zip, created_at) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 	    // bind variable names and types
-	    $stmt->bind_param("ssssss", $username, $firstname, $lastname, $encrypted_password, 
-                                  $usergroup, $email);
+	    $stmt->bind_param("ssssssssssss", $username, $firstname, $lastname, $encrypted_password, 
+                                  $usergroup, $email, $address1, $address2, $city, $state, $zip, $time);
 
 	    $username=$_POST['username'];
 	    $firstname=$_POST['firstname'];
@@ -36,6 +36,12 @@ if (isset($_POST['selection'])) // form loaded itself
                                           PASSWORD_DEFAULT);
 	    $usergroup=$_POST['usergroup'];
 	    $email=$_POST['email'];
+	    $address1=$_POST['address1'];
+	    $address2=$_POST['address2'];
+	    $city=$_POST['city'];
+	    $state=$_POST['state'];
+	    $zip=$_POST['zip'];
+	    $time=date("Y-m-d H:i:s");
 
 	    // put the statement together and send it to the database
 	    $result=$stmt->execute();
@@ -95,6 +101,26 @@ if (isset($_POST['selection'])) // form loaded itself
     <input type="radio" id= "admin" name="usergroup" value="admin"> <label for="admin">Admin</label>
     <input type="radio" id= "su" name="usergroup" value="su"> <label for="su">Super user</label>
   </td>
+</tr>
+<tr>
+  <td>Address1</td>
+  <td> <input type='text' name='address1' /> </td>
+</tr>
+<tr>
+  <td>Address2</td>
+  <td> <input type='text' name='address2' /> </td>
+</tr>
+<tr>
+  <td>City</td>
+  <td> <input type='text' name='city' /> </td>
+</tr>
+<tr>
+  <td>State</td>
+  <td> <input type='text' name='state' /> </td>
+</tr>
+<tr>
+  <td>Zipcode</td>
+  <td> <input type='text' name='zip' /> </td>
 </tr>
 <tr>
   <td colspan='2' style='text-align: center; background-color: white;'> 
